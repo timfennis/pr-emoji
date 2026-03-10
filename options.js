@@ -1,6 +1,5 @@
 const apiKeyInput = document.getElementById("apiKey");
 const modelSelect = document.getElementById("model");
-const surpriseMeCheckbox = document.getElementById("surpriseMe");
 const saveBtn = document.getElementById("save");
 const status = document.getElementById("status");
 
@@ -114,9 +113,8 @@ async function loadModels() {
   }
 }
 
-browser.storage.sync.get(["apiKey", "surpriseMe"]).then(({ apiKey, surpriseMe }) => {
+browser.storage.sync.get(["apiKey"]).then(({ apiKey }) => {
   if (apiKey) apiKeyInput.value = apiKey;
-  surpriseMeCheckbox.checked = !!surpriseMe;
 });
 
 loadModels();
@@ -129,7 +127,7 @@ saveBtn.addEventListener("click", () => {
     return;
   }
   browser.storage.sync
-    .set({ apiKey, model: modelSelect.value, surpriseMe: surpriseMeCheckbox.checked })
+    .set({ apiKey, model: modelSelect.value })
     .then(() => {
       status.textContent = "Saved!";
       status.style.color = "#1a7f37";

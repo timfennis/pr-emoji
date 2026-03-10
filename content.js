@@ -112,7 +112,7 @@ function injectButton(titleInput) {
   btn.addEventListener("click", (e) => {
     e.preventDefault();
     e.stopPropagation();
-    onSuggestClick(titleInput);
+    onSuggestClick(titleInput, e);
   });
 
   container.appendChild(btn);
@@ -167,7 +167,7 @@ function applyEmoji(titleInput, emoji) {
   titleInput.focus();
 }
 
-async function onSuggestClick(titleInput) {
+async function onSuggestClick(titleInput, event = null) {
   const btn = document.getElementById("pr-emoji-btn");
   if (!btn) return;
 
@@ -199,8 +199,8 @@ async function onSuggestClick(titleInput) {
     return;
   }
 
-  // Surprise me: auto-apply the top suggestion
-  const { surpriseMe } = await browser.storage.sync.get("surpriseMe");
+  // Surprise me: auto-apply the top suggestion (triggered by ctrl/shift+click)
+  const surpriseMe = event && (event.ctrlKey || event.shiftKey);
   if (surpriseMe && response.suggestions.length > 0) {
     applyEmoji(titleInput, response.suggestions[0].emoji);
     // Brief flash on the button to confirm it worked
