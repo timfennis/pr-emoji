@@ -6,6 +6,16 @@ function init() {
   observer.observe(document.body, { childList: true, subtree: true });
   tryInject();
 
+  // Handle GitHub SPA navigation (soft-nav is modern GitHub, turbo:load is older)
+  document.addEventListener("soft-nav:end", () => {
+    autoSuggestFired = false;
+    tryInject();
+  });
+  document.addEventListener("turbo:load", () => {
+    autoSuggestFired = false;
+    tryInject();
+  });
+
   // Listen for keyboard shortcut from background script
   browser.runtime.onMessage.addListener((msg) => {
     if (msg.type === "trigger-suggest") {
