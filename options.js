@@ -113,8 +113,11 @@ async function loadModels() {
   }
 }
 
-browser.storage.sync.get(["apiKey"]).then(({ apiKey }) => {
+const semanticModeCheckbox = document.getElementById("semanticMode");
+
+browser.storage.sync.get(["apiKey", "semanticMode"]).then(({ apiKey, semanticMode }) => {
   if (apiKey) apiKeyInput.value = apiKey;
+  semanticModeCheckbox.checked = !!semanticMode;
 });
 
 loadModels();
@@ -127,7 +130,7 @@ saveBtn.addEventListener("click", () => {
     return;
   }
   browser.storage.sync
-    .set({ apiKey, model: modelSelect.value })
+    .set({ apiKey, model: modelSelect.value, semanticMode: semanticModeCheckbox.checked })
     .then(() => {
       status.textContent = "Saved!";
       status.style.color = "#1a7f37";

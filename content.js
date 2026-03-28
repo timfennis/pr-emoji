@@ -118,6 +118,9 @@ function injectButton(titleInput) {
   btn.type = "button";
   btn.textContent = "🎯 Suggest Emoji";
   btn.className = "pr-emoji-btn";
+  browser.storage.sync.get("semanticMode").then(({ semanticMode }) => {
+    if (semanticMode) btn.textContent = "🏷️ Suggest Title";
+  });
 
   btn.addEventListener("click", (e) => {
     e.preventDefault();
@@ -177,6 +180,12 @@ function applyEmoji(titleInput, emoji) {
   titleInput.focus();
 }
 
+function applySemanticTitle(titleInput, title) {
+  titleInput.value = title;
+  titleInput.dispatchEvent(new Event("input", { bubbles: true }));
+  titleInput.focus();
+}
+
 async function onSuggestClick(titleInput, event = null) {
   const btn = document.getElementById("pr-emoji-btn");
   if (!btn) return;
@@ -201,7 +210,8 @@ async function onSuggestClick(titleInput, event = null) {
     commits,
   });
 
-  btn.textContent = "🎯 Suggest Emoji";
+  const semantic = response.suggestions?.[0]?.title !== undefined;
+  btn.textContent = semantic ? "🏷️ Suggest Title" : "🎯 Suggest Emoji";
   btn.disabled = false;
 
   if (response.error) {
@@ -212,23 +222,33 @@ async function onSuggestClick(titleInput, event = null) {
   // Surprise me: auto-apply the top suggestion (triggered by ctrl/shift+click)
   const surpriseMe = event && (event.ctrlKey || event.shiftKey);
   if (surpriseMe && response.suggestions.length > 0) {
-    applyEmoji(titleInput, response.suggestions[0].emoji);
-    // Brief flash on the button to confirm it worked
-    btn.textContent = response.suggestions[0].emoji + " Applied!";
+    if (semantic) {
+      applySemanticTitle(titleInput, response.suggestions[0].title);
+      btn.textContent = "✅ Applied!";
+    } else {
+      applyEmoji(titleInput, response.suggestions[0].emoji);
+      btn.textContent = response.suggestions[0].emoji + " Applied!";
+    }
     setTimeout(() => {
-      btn.textContent = "🎯 Suggest Emoji";
+      btn.textContent = semantic ? "🏷️ Suggest Title" : "🎯 Suggest Emoji";
     }, 1500);
     return;
   }
 
-  showPopup(response.suggestions, (emoji) => {
-    applyEmoji(titleInput, emoji);
-  });
+  if (semantic) {
+    showPopup(response.suggestions, (pickedTitle) => {
+      applySemanticTitle(titleInput, pickedTitle);
+    }, false, true);
+  } else {
+    showPopup(response.suggestions, (emoji) => {
+      applyEmoji(titleInput, emoji);
+    });
+  }
 }
 
 // --- Popup ---
 
-function showPopup(suggestions, onPick, isError = false) {
+function showPopup(suggestions, onPick, isError = false, semantic = false) {
   const existing = document.getElementById("pr-emoji-popup");
   if (existing) existing.remove();
 
@@ -244,30 +264,30 @@ function showPopup(suggestions, onPick, isError = false) {
   } else {
     const heading = document.createElement("div");
     heading.className = "pr-emoji-heading";
-    heading.textContent = "Pick an emoji for your PR:";
+    heading.textContent = semantic ? "Pick a semantic commit title:" : "Pick an emoji for your PR:";
     popup.appendChild(heading);
 
-    suggestions.forEach(({ emoji, reason }) => {
+    suggestions.forEach(({ emoji, title, reason }) => {
       const option = document.createElement("button");
       option.type = "button";
       option.className = "pr-emoji-option";
 
-      const emojiSpan = document.createElement("span");
-      emojiSpan.className = "pr-emoji-option-emoji";
-      emojiSpan.textContent = emoji;
+      const primarySpan = document.createElement("span");
+      primarySpan.className = "pr-emoji-option-emoji";
+      primarySpan.textContent = semantic ? title : emoji;
 
       const reasonSpan = document.createElement("span");
       reasonSpan.className = "pr-emoji-option-reason";
       reasonSpan.textContent = reason;
 
-      option.appendChild(emojiSpan);
+      option.appendChild(primarySpan);
       option.appendChild(reasonSpan);
 
       option.addEventListener("click", (e) => {
         e.preventDefault();
         e.stopPropagation();
         popup.remove();
-        onPick(emoji);
+        onPick(semantic ? title : emoji);
       });
 
       popup.appendChild(option);

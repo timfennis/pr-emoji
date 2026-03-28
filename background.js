@@ -21,9 +21,10 @@ browser.commands.onCommand.addListener((command) => {
 });
 
 async function suggestEmojis(title, body, commits) {
-  const settings = await browser.storage.sync.get(["apiKey", "model"]);
+  const settings = await browser.storage.sync.get(["apiKey", "model", "semanticMode"]);
   const apiKey = settings.apiKey;
   const model = settings.model || DEFAULT_MODEL;
+  const semanticMode = settings.semanticMode || false;
 
   if (!apiKey) {
     return {
@@ -36,7 +37,15 @@ async function suggestEmojis(title, body, commits) {
     commitSection = `\n\nCommit messages:\n${commits.map((c) => `- ${c}`).join("\n")}`;
   }
 
-  const prompt = `You are an emoji suggestion engine for GitHub pull requests. Given the PR title, description, and commit messages, suggest 5 emojis that best represent the changes. Return ONLY a JSON array of objects with "emoji" and "reason" fields. Keep reasons under 8 words.
+  const prompt = semanticMode
+    ? `You are a PR title suggestion engine. Given the PR title, description, and commit messages, suggest 5 complete PR titles that follow semantic commit conventions. Each title must use a type prefix (feat, fix, docs, refactor, test, chore, style, perf, ci, build), an optional scope in parentheses, a colon, a short description, and end with a single fitting emoji. Return ONLY a JSON array of objects with "title" and "reason" fields. Keep reasons under 8 words.
+
+PR Title: ${title}
+PR Description: ${body || "(no description)"}${commitSection}
+
+Example response:
+[{"title": "feat(auth): add OAuth login support 🔐", "reason": "New authentication feature"}, {"title": "fix: resolve login redirect loop 🐛", "reason": "Bug fix"}]`
+    : `You are an emoji suggestion engine for GitHub pull requests. Given the PR title, description, and commit messages, suggest 5 emojis that best represent the changes. Return ONLY a JSON array of objects with "emoji" and "reason" fields. Keep reasons under 8 words.
 
 PR Title: ${title}
 PR Description: ${body || "(no description)"}${commitSection}
