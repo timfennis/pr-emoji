@@ -45,8 +45,6 @@
         border: 1px solid #d1d9e0;
         border-radius: 4px;
       }
-      .model-loading { font-size: 12px; color: #656d76; padding: 6px 0; }
-      .model-price { color: #656d76; }
     </style>
   </head>
   <body>
@@ -60,10 +58,10 @@
 
     <div class="field">
       <label for="model">AI Model</label>
-      <select id="model">
-        <option value="">Loading models...</option>
+      <select id="model" disabled>
+        <option value="openrouter/free">OpenRouter Free Models Router</option>
       </select>
-      <div class="hint">Only showing cheap models — emoji suggestions don't need expensive ones</div>
+      <div class="hint">Automatically routes each request to an available free model</div>
     </div>
 
     <button id="save">Save</button>

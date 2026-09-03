@@ -11,7 +11,7 @@ Requires Firefox 143+.
 - **Surprise me mode** - auto-picks the top suggestion without showing the popup. Combined with auto-suggest, emojis just appear as you create PRs
 - **Commit-aware** - feeds commit messages into the AI prompt for better suggestions
 - **Keyboard shortcut** - `Ctrl+Shift+E` to trigger suggestions from anywhere on the page
-- **Dynamic model picker** - fetches available cheap models from OpenRouter so the list is always up to date
+- **Free model routing** - always uses OpenRouter's Free Models Router, which selects an available free model for each request
 - Pick from 5 AI-suggested emojis with short explanations
 - Replaces any existing leading emoji if you re-run it
 
@@ -42,7 +42,7 @@ Then drag `pr-emoji.xpi` into Firefox, or go to `about:addons` > gear icon > **I
 Open the extension preferences to configure:
 
 - **API Key** - your OpenRouter API key
-- **AI Model** - fetched live from OpenRouter, filtered to cheap models only. Recommended picks from Google, OpenAI, and Anthropic are shown at the top
+- **AI Model** - fixed to OpenRouter's Free Models Router (`openrouter/free`)
 - **Surprise me mode** - skip the popup and auto-apply the top emoji suggestion
 
 The keyboard shortcut can be customized in `about:addons` > gear icon > **Manage Extension Shortcuts**.

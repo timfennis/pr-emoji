@@ -1,4 +1,4 @@
-const DEFAULT_MODEL = "google/gemini-2.0-flash-001";
+const MODEL = "openrouter/free";
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "suggest-emojis") {
@@ -21,9 +21,8 @@ browser.commands.onCommand.addListener((command) => {
 });
 
 async function suggestEmojis(title, body, commits) {
-  const settings = await browser.storage.sync.get(["apiKey", "model"]);
+  const settings = await browser.storage.sync.get("apiKey");
   const apiKey = settings.apiKey;
-  const model = settings.model || DEFAULT_MODEL;
 
   if (!apiKey) {
     return {
@@ -52,7 +51,7 @@ Example response:
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model,
+        model: MODEL,
         messages: [{ role: "user", content: prompt }],
         temperature: 0.7,
       }),
