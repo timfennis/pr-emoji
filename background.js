@@ -1,4 +1,11 @@
-const MODEL = "openrouter/free";
+const FREE_MODEL = "openrouter/free";
+const HAIKU_MODEL = "anthropic/claude-haiku-5.5";
+
+function resolveModel({ modelChoice, customModel }) {
+  if (modelChoice === "haiku") return HAIKU_MODEL;
+  if (modelChoice === "custom" && customModel?.trim()) return customModel.trim();
+  return FREE_MODEL;
+}
 
 browser.runtime.onMessage.addListener((request, sender, sendResponse) => {
   if (request.type === "suggest-emojis") {
@@ -20,9 +27,37 @@ browser.commands.onCommand.addListener((command) => {
   }
 });
 
+// Builds the prompt from only the PR info the user allows to be sent.
+function buildPrompt(title, body, commits, { sendBody, sendCommits }) {
+  const included = ["title"];
+  let context = `PR Title: ${title}`;
+
+  if (sendBody) {
+    included.push("description");
+    context += `\nPR Description: ${body || "(no description)"}`;
+  }
+  if (sendCommits && commits?.length > 0) {
+    included.push("commit messages");
+    context += `\n\nCommit messages:\n${commits.map((c) => `- ${c}`).join("\n")}`;
+  }
+
+  const given =
+    included.length === 1
+      ? included[0]
+      : included.slice(0, -1).join(", ") + " and " + included.at(-1);
+
+  return `You are an emoji suggestion engine for GitHub pull requests. Given the PR ${given}, suggest 5 emojis that best represent the changes. Return ONLY a JSON array of objects with "emoji" and "reason" fields. Keep reasons under 8 words.
+
+${context}
+
+Example response:
+[{"emoji": "🐛", "reason": "Bug fix"}, {"emoji": "✨", "reason": "New feature"}]`;
+}
+
 async function suggestEmojis(title, body, commits) {
-  const settings = await browser.storage.sync.get("apiKey");
+  const settings = await loadSettings();
   const apiKey = settings.apiKey;
+  const model = resolveModel(settings);
 
   if (!apiKey) {
     return {
@@ -30,18 +65,7 @@ async function suggestEmojis(title, body, commits) {
     };
   }
 
-  let commitSection = "";
-  if (commits && commits.length > 0) {
-    commitSection = `\n\nCommit messages:\n${commits.map((c) => `- ${c}`).join("\n")}`;
-  }
-
-  const prompt = `You are an emoji suggestion engine for GitHub pull requests. Given the PR title, description, and commit messages, suggest 5 emojis that best represent the changes. Return ONLY a JSON array of objects with "emoji" and "reason" fields. Keep reasons under 8 words.
-
-PR Title: ${title}
-PR Description: ${body || "(no description)"}${commitSection}
-
-Example response:
-[{"emoji": "🐛", "reason": "Bug fix"}, {"emoji": "✨", "reason": "New feature"}]`;
+  const prompt = buildPrompt(title, body, commits, settings);
 
   try {
     const res = await fetch("https://openrouter.ai/api/v1/chat/completions", {
@@ -51,7 +75,7 @@ Example response:
         Authorization: `Bearer ${apiKey}`,
       },
       body: JSON.stringify({
-        model: MODEL,
+        model,
         messages: [{ role: "user", content: prompt }],
         temperature: 0.7,
       }),

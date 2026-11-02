@@ -35,6 +35,13 @@
       }
       button:hover { background: #1a7f37; }
       .status { font-size: 12px; margin-top: 8px; color: #1a7f37; }
+      .radio { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: normal; margin: 4px 0; }
+      .radio input { margin: 0; }
+      #customModel { margin-top: 4px; }
+      #customModel:disabled { background: #f6f8fa; color: #656d76; }
+      .checkbox { display: flex; align-items: center; gap: 6px; font-size: 13px; font-weight: normal; margin: 4px 0; }
+      .checkbox input { margin: 0; }
+      .checkbox input:disabled + span { color: #656d76; }
       .shortcut { margin-top: 16px; padding-top: 12px; border-top: 1px solid #d1d9e0; font-size: 12px; color: #656d76; }
       kbd {
         display: inline-block;
@@ -57,11 +64,20 @@
     </div>
 
     <div class="field">
-      <label for="model">AI Model</label>
-      <select id="model" disabled>
-        <option value="openrouter/free">OpenRouter Free Models Router</option>
-      </select>
-      <div class="hint">Automatically routes each request to an available free model</div>
+      <label>AI Model</label>
+      <label class="radio"><input type="radio" name="modelChoice" value="free" /> OpenRouter Free Models Router</label>
+      <label class="radio"><input type="radio" name="modelChoice" value="haiku" /> Claude Haiku 5.5</label>
+      <label class="radio"><input type="radio" name="modelChoice" value="custom" /> Custom model</label>
+      <input type="text" id="customModel" placeholder="e.g. google/gemini-2.5-flash" disabled />
+      <div class="hint" id="modelHint"></div>
+    </div>
+
+    <div class="field">
+      <label>Info sent to the AI</label>
+      <label class="checkbox"><input type="checkbox" checked disabled /> <span>PR title (always)</span></label>
+      <label class="checkbox"><input type="checkbox" id="sendBody" /> <span>PR description</span></label>
+      <label class="checkbox"><input type="checkbox" id="sendCommits" /> <span>Commit messages</span></label>
+      <div class="hint">Unchecked items never leave your browser</div>
     </div>
 
     <button id="save">Save</button>
@@ -72,6 +88,7 @@
       <div class="hint" style="margin-top: 2px;">Customize in <a href="about:addons" target="_blank">Add-ons</a> → ⚙️ → Manage Extension Shortcuts</div>
     </div>
 
+    <script src="settings.js"></script>
     <script src="options.js"></script>
   </body>
 </html>
