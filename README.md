@@ -7,11 +7,13 @@ Requires Firefox 143+.
 ## Features
 
 - **Auto-suggest on PR creation** - automatically suggests emojis 1.5s after you stop typing the title (or immediately if GitHub pre-fills it from the branch name)
+- **Replaces the Copilot button** - on the PR creation page the 🎯 button takes over Copilot's slot in the title field
+- **Magic wand** - on a PR page, click 🪄 next to the pencil to prepend a random AI-picked emoji and save the title in one go
 - **PR edit page** - click the pencil to edit a PR title and a "Suggest Emoji" button appears
-- **Surprise me mode** - auto-picks the top suggestion without showing the popup. Combined with auto-suggest, emojis just appear as you create PRs
-- **Commit-aware** - feeds commit messages into the AI prompt for better suggestions
+- **Surprise me** - ctrl/shift+click the button to auto-apply the top suggestion without showing the popup
+- **You control what's sent** - the PR title is always sent; the description (on by default) and commit messages (off by default) can be toggled in the options
 - **Keyboard shortcut** - `Ctrl+Shift+E` to trigger suggestions from anywhere on the page
-- **Free model routing** - always uses OpenRouter's Free Models Router, which selects an available free model for each request
+- **Configurable model** - OpenRouter's Free Models Router (default), Claude Haiku 5.5, or any OpenRouter model ID you type in
 - Pick from 5 AI-suggested emojis with short explanations
 - Replaces any existing leading emoji if you re-run it
 
@@ -42,8 +44,11 @@ Then drag `pr-emoji.xpi` into Firefox, or go to `about:addons` > gear icon > **I
 Open the extension preferences to configure:
 
 - **API Key** - your OpenRouter API key
-- **AI Model** - fixed to OpenRouter's Free Models Router (`openrouter/free`)
-- **Surprise me mode** - skip the popup and auto-apply the top emoji suggestion
+- **AI Model** - one of:
+  - **OpenRouter Free Models Router** (`openrouter/free`, default) - free, but quality and speed vary
+  - **Claude Haiku 5.5** (`anthropic/claude-haiku-5.5`) - fast and cheap, billed to your OpenRouter credits
+  - **Custom model** - any [OpenRouter model ID](https://openrouter.ai/models)
+- **Info sent to the AI** - the PR title is always sent; toggle whether the PR description (default on) and commit messages (default off) are included
 
 The keyboard shortcut can be customized in `about:addons` > gear icon > **Manage Extension Shortcuts**.
 

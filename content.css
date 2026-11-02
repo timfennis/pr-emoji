@@ -87,3 +87,65 @@
   font-size: 13px;
   color: var(--fgColor-danger, #d1242f);
 }
+
+/* --- Create page: our button replaces Copilot inside the title input --- */
+
+.TextInput-action:has(> #pr-emoji-btn) > button:has(svg.octicon-copilot) {
+  display: none !important;
+}
+
+.pr-emoji-icon-btn,
+.pr-emoji-wand {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  padding: 0;
+  border: none;
+  border-radius: 6px;
+  background: transparent;
+  cursor: pointer;
+  line-height: 1;
+  transition: background 0.15s;
+}
+
+.pr-emoji-icon-btn {
+  width: 28px;
+  height: 28px;
+  font-size: 15px;
+}
+
+.pr-emoji-icon-btn:hover,
+.pr-emoji-wand:hover {
+  background: var(--control-transparent-bgColor-hover, rgba(129, 139, 152, 0.15));
+}
+
+.pr-emoji-icon-btn:disabled,
+.pr-emoji-wand:disabled {
+  cursor: wait;
+}
+
+/* --- PR view page: magic wand next to the pencil --- */
+
+.pr-emoji-wand-wrap {
+  position: relative;
+  display: inline-block;
+  vertical-align: middle;
+}
+
+.pr-emoji-wand {
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+}
+
+.pr-emoji-popup--right {
+  left: auto;
+  right: 0;
+}
+
+/* The popup can sit inside the large PR heading; keep its own typography */
+.pr-emoji-popup {
+  font-size: 14px;
+  font-weight: normal;
+  line-height: 1.5;
+}
